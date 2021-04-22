@@ -2,9 +2,13 @@ import pandas as pd
 import openpyxl
 from os import listdir
 from os.path import isfile, join
+import datetime
 
 xlsxFolderPath = "xlsx"
 xlsxFolderPathRaw = "raw_xlsx"
+
+# xlsxFolderPath = "test\\xlsx"
+# xlsxFolderPathRaw = "test\\raw_xlsx"
 
 def getFilesFromDirectory(selectedPath):
     return [f for f in listdir(selectedPath) if isfile(join(selectedPath, f))]
@@ -35,6 +39,7 @@ for filename in filesToHandle:
     print("Start reading file at {}...".format(newFilePath))
     xlsx = pd.ExcelFile(newFilePath)
     df = pd.read_excel(xlsx, sheet_name=0)
+    print(df.dtypes)
 
     # Normalize column names
     df.columns = df.columns.str.strip().str.lower().str.replace(' ', '_').str.replace('(', '').str.replace(')', '')
@@ -49,7 +54,8 @@ for filename in filesToHandle:
     print("Condition value has been added to column {}".format(colName))
     
     # Create product code with concatenation
-    df['inv._pty'] = df['inv._pty'].str.strip() # Remove unecessary spaces
+    if df['inv._pty'].dtypes != "float" and df['inv._pty'].dtypes != "int64":
+        df['inv._pty'] = df['inv._pty'].str.strip() # Remove unecessary spaces
     def getProductCode(row):
         return str(row['inv._pty']) + str(row['material'])
     colName = "product_code"
@@ -70,17 +76,35 @@ for filename in filesToHandle:
 print("Main dataframe is now complete")
 print(mainDF)
 
+# Convert the content of the valid_from column to a date type
+print("Converting valid_from column to type date")
+mainDF['valid_from_dt'] = pd.to_datetime(mainDF['valid_from'], errors='coerce') # doc on pd.to_datetime https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_datetime.html
+print(mainDF.dtypes)
+print("Dataframe with invalid dates")
+invalidDatesDF = mainDF[mainDF['valid_from_dt'].isnull()]
+print(invalidDatesDF)
+
+# Split dataframe based on valid_from future dates
+dateToLimit = datetime.datetime(2021,12,31)
+# dateToLimit = datetime.datetime.now() # now
+futureDatesDF = mainDF[(mainDF['valid_from_dt'] > dateToLimit)]
+keepDF = mainDF[(mainDF['valid_from_dt'] < dateToLimit)]
+print("Dataframe with future dates")
+print(futureDatesDF)
+
 # Remove duplicates
-mainDF['valid_from'] = pd.to_datetime(mainDF['valid_from'], errors='coerce') # Convert column valid_from to datetime
-mainDF = mainDF.dropna(subset=['valid_from']) # Remove rows where the conversion did not work
-mainDF = mainDF.sort_values(by=['valid_from'])
-mainDF = mainDF.drop_duplicates(subset ="product_code", keep='first')
+keepDF = keepDF.dropna(subset=['valid_from_dt']) # Remove rows where the conversion did not work
+keepDF = keepDF.sort_values(by=['valid_from_dt'], ascending=False)
+keepDF = keepDF.drop_duplicates(subset ="product_code", keep='first')
 print("Duplicates have been removed")
-print(mainDF)
+print(keepDF)
 
 # Write output to final excel file
 print("Start writing to ouput file...")
 filename = "output.xlsx"
 writer = pd.ExcelWriter(xlsxFolderPath + "\\" + filename, engine="xlsxwriter")
-mainDF.to_excel(writer, sheet_name="main")
+keepDF.to_excel(writer, sheet_name="main")
+mainDF.to_excel(writer, sheet_name="all")
+futureDatesDF.to_excel(writer, sheet_name="future_dates")
+invalidDatesDF.to_excel(writer, sheet_name="wrong_dates")
 writer.save()

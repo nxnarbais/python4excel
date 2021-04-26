@@ -54,8 +54,7 @@ for filename in filesToHandle:
     print("Condition value has been added to column {}".format(colName))
     
     # Create product code with concatenation
-    if df['inv._pty'].dtypes != "float" and df['inv._pty'].dtypes != "int64":
-        df['inv._pty'] = df['inv._pty'].str.strip() # Remove unecessary spaces
+    df['inv._pty'] = df['inv._pty'].astype(str).str.strip() # Remove unecessary spaces
     def getProductCode(row):
         return str(row['inv._pty']) + str(row['material'])
     colName = "product_code"
@@ -110,7 +109,6 @@ invalidDatesDF.to_excel(writer, sheet_name="wrong_dates")
 writer.save()
 
 # Get all inv._pty
-keepDF['inv._pty'] = keepDF['inv._pty'].astype(str).str.strip() # Convert as string and remove spaces
 invParties = keepDF["inv._pty"].unique()
 
 # Write one file per inv._pty

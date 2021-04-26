@@ -100,7 +100,7 @@ print("Duplicates have been removed")
 print(keepDF)
 
 # Write output to final excel file
-print("Start writing to ouput file...")
+print("Start writing to output file...")
 filename = "output.xlsx"
 writer = pd.ExcelWriter(xlsxFolderPath + "\\" + filename, engine="xlsxwriter")
 keepDF.to_excel(writer, sheet_name="main")
@@ -108,3 +108,15 @@ mainDF.to_excel(writer, sheet_name="all")
 futureDatesDF.to_excel(writer, sheet_name="future_dates")
 invalidDatesDF.to_excel(writer, sheet_name="wrong_dates")
 writer.save()
+
+# Get all inv._pty
+keepDF['inv._pty'] = keepDF['inv._pty'].astype(str).str.strip() # Convert as string and remove spaces
+invParties = keepDF["inv._pty"].unique()
+
+# Write one file per inv._pty
+for invParty in invParties:
+    filename = "output_{}.xlsx".format(invParty)
+    writer = pd.ExcelWriter(xlsxFolderPath + "\\" + filename, engine="xlsxwriter")
+    keepDF[keepDF['inv._pty'] == invParty].to_excel(writer, sheet_name="main")
+    writer.save()
+    print("Saved output file for inv.Pty: {}".format(invParty))

@@ -26,8 +26,6 @@ expensesDF = pd.read_excel(myXLSXFile, "expenses")
 everyoneDF = pd.DataFrame()
 everyoneDF = everyoneDF.append(peopleDF)
 everyoneDF = everyoneDF.append(managersDF)
-print("Merged dataframe")
-print(everyoneDF)
 
 columnNameToMergeOn = "person_number"
 mainDF = pd.merge(expensesDF, 
@@ -35,37 +33,18 @@ mainDF = pd.merge(expensesDF,
                     on = columnNameToMergeOn, 
                     how ='left')
 
-print("Expenses")
-print(mainDF)
+# print("Expenses")
+# print(mainDF)
 
 #####################
-# Add today's date column
-#####################
-dfSize = len(mainDF) # Get number of rows
-todayDate = date.today() # Get today's date
-newCol = [todayDate for x in range(dfSize)] # Create a list with only today's date
-colName = "date"
-mainDF[colName] = newCol
-
-#####################
-# Add price per unit column
+# First pivot tables
 #####################
 
-colName = "price_per_unit"
-mainDF[colName] = mainDF["price"] / mainDF["qty"]
+pivotDF = mainDF.pivot_table(index='person_number', values=['qty', 'price'], aggfunc='sum')
+print(pivotDF)
 
-# def getCostPerUnit(row):
-#     return float(row['price']) / float(row['qty'])
-# mainDF[colName] = mainDF.apply (lambda row: getCostPerUnit(row), axis=1)
+pivotDF = mainDF.pivot_table(index=['person_number','person_first_name','person_last_name'], values=['qty', 'price'], aggfunc=['sum', 'mean'])
+print(pivotDF)
 
-#####################
-# Add full name column
-#####################
-
-def getFullName(row):
-    return row['person_first_name'] + " " + row['person_last_name']
-colName = "full_name"
-mainDF[colName] = mainDF.apply (lambda row: getFullName(row), axis=1)
-
-print("Expenses with added columns")
-print(mainDF)
+pivotDF = mainDF.pivot_table(index='fruit', values=['qty', 'price'], aggfunc=['sum', 'mean'])
+print(pivotDF)

@@ -69,6 +69,14 @@ print("Apple and peer expenses")
 print(appleAndPeerDF)
 
 #####################
+# Filter lines with empty firstname
+#####################
+
+noFirstName = mainDF[mainDF['person_first_name'].isnull()]
+print("No first name")
+print(noFirstName)
+
+#####################
 # Sort by city
 #####################
 

@@ -1,4 +1,5 @@
-/penv
+/venv
+/class_hands_on
 
 *.xlsx
 *.xls

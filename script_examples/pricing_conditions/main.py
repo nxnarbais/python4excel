@@ -4,6 +4,10 @@ from os import listdir
 from os.path import isfile, join
 import datetime
 
+# import xlrd
+# from openpyxl.workbook import Workbook
+# from openpyxl.reader.excel import load_workbook, InvalidFileException
+
 xlsxFolderPath = "xlsx"
 xlsxFolderPathRaw = "raw_xlsx"
 
@@ -21,11 +25,33 @@ def getConditionValue(sheet):
 
 mainDF = pd.DataFrame() # Create empty dataframe
 
+# def open_xls_as_xlsx(filename):
+#     # first open using xlrd
+#     book = xlrd.open_workbook(filename)
+#     index = 0
+#     nrows, ncols = 0, 0
+#     while nrows * ncols == 0:
+#         sheet = book.sheet_by_index(index)
+#         nrows = sheet.nrows
+#         ncols = sheet.ncols
+#         index += 1
+
+#     # prepare a xlsx sheet
+#     book1 = Workbook()
+#     sheet1 = book1.get_active_sheet()
+
+#     for row in xrange(0, nrows):
+#         for col in xrange(0, ncols):
+#             sheet1.cell(row=row, column=col).value = sheet.cell_value(row, col)
+
+#     return book1
+
 for filename in filesToHandle:
 
     # Get condition value and delete first row
     print("Start processing {}...".format(filename))
     wb = openpyxl.load_workbook(xlsxFolderPathRaw + "\\" + filename)
+    # wb = open_xls_as_xlsx(xlsxFolderPathRaw + "\\" + filename)
     sheet = wb.worksheets[0]
     conditionValue = getConditionValue(sheet)
     print("Condition value {}".format(conditionValue))
@@ -52,11 +78,27 @@ for filename in filesToHandle:
     colName = "condition_value"
     df[colName] = newCol
     print("Condition value has been added to column {}".format(colName))
+
+    # Add column with the filename
+    dfSize = len(df)
+    newCol = [filename for x in range(dfSize)]
+    colName = "filename"
+    df[colName] = newCol
+    print("Filename value has been added to column {}".format(colName))
+
+    # Standardize names
+    if "inv._pty" in colNames:
+        df['vendor_id'] = df['inv._pty'].astype(str).str.strip() # Remove unecessary spaces
+    else:
+        df['vendor_id'] = df['vendor'].astype(str).str.strip() # Remove unecessary spaces
+    if "material" in colNames:
+        df['material_id'] = df['material']
+    else:
+        df['material_id'] = df['matl_group']
     
     # Create product code with concatenation
-    df['inv._pty'] = df['inv._pty'].astype(str).str.strip() # Remove unecessary spaces
     def getProductCode(row):
-        return str(row['inv._pty']) + str(row['material'])
+        return str(row['vendor_id']) + str(row['material_id'])
     colName = "product_code"
     df[colName] = df.apply (lambda row: getProductCode(row), axis=1)
     print("Product code has been added to column {}".format(colName))
@@ -109,12 +151,12 @@ invalidDatesDF.to_excel(writer, sheet_name="wrong_dates")
 writer.save()
 
 # Get all inv._pty
-invParties = keepDF["inv._pty"].unique()
+vendor_id_list = keepDF["vendor_id"].unique()
 
 # Write one file per inv._pty
-for invParty in invParties:
-    filename = "output_{}.xlsx".format(invParty)
+for vendor_id in vendor_id_list:
+    filename = "output_{}.xlsx".format(vendor_id)
     writer = pd.ExcelWriter(xlsxFolderPath + "\\" + filename, engine="xlsxwriter")
-    keepDF[keepDF['inv._pty'] == invParty].to_excel(writer, sheet_name="main")
+    keepDF[keepDF['vendor_id'] == vendor_id].to_excel(writer, sheet_name="main")
     writer.save()
-    print("Saved output file for inv.Pty: {}".format(invParty))
+    print("Saved output file for vendor_id: {}".format(vendor_id))

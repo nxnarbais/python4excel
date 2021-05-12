@@ -11,6 +11,7 @@ In addition, this also includes exercises and solutions to help you improve by p
 The section below is required for first use only.
 
 1. Create an environment of work with `py -m venv venv`
+1. Activate the environment `.\venv\Scripts\activate`
 1. Install dependencies
     1. `pip install pandas`
     1. `pip install xlsxwriter`

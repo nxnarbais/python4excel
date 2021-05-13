@@ -9,6 +9,7 @@ if b > a:
     # Python relies on indentation (whitespace at the beginning of a line) to define scope in the code.
     print("b is greater than a")
 
+print("____________________")
 #####################
 # ELIF
 #####################
@@ -21,6 +22,7 @@ if b > a:
 elif a == b:
   print("a and b are equal")
 
+print("____________________")
 #####################
 # ELSE
 #####################
@@ -44,6 +46,7 @@ if b > a:
 else:
   print("b is not greater than a")
 
+print("____________________")
 #####################
 # First FOR Loop
 ####################
@@ -55,6 +58,7 @@ for x in fruits:
 for x in "banana":
   print(x)
 
+print("____________________")
 #####################
 # Nested for loops 
 #####################
@@ -66,6 +70,7 @@ for x in adj:
   for y in fruits:
     print(x, y)
 
+print("____________________")
 #####################
 # First WHILE examples
 #####################
@@ -73,4 +78,4 @@ for x in adj:
 i = 1
 while i < 6:
   print(i)
-  i += 1
+  i = i + 1

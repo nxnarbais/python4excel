@@ -40,7 +40,6 @@ print(companyDF.columns)
 # Convert to string and strip spaces on both sides
 #####################
 
-
 print("Existing column supplier id type")
 print(companyDF["supplier_id"])
 

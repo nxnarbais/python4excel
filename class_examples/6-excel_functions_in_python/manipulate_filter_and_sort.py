@@ -84,7 +84,6 @@ sortByCityDF = mainDF.sort_values(by=['city'], ascending=True)
 print("Sorted by city")
 print(sortByCityDF)
 
-
 #####################
 # Sort by price and city
 #####################

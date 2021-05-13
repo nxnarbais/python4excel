@@ -4,14 +4,14 @@
 #####################
 
 print("This text")
-print(412)
-print(4.13)
+print(314159)
+print(3.14159)
 print(False)
 
 print(type("This text"))
-print(type(412))
-print(type(4.13))
+print(type(314159))
+print(type(3.14159))
 print(type(False))
 
-x = 5
+x = 42
 print(type(x))

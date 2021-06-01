@@ -1,5 +1,5 @@
 #####################
-# With a for loop, add all the numbers within an list
+# Write a for loop, add all the numbers within myList
 ##################### 
 
 myList = [1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -10,7 +10,7 @@ for num in myList:
 print(total)
 
 #####################
-# With a for loop and an if statement, find the largest number in the list
+# Write a for loop and an if statement, find the largest number in myList
 ##################### 
 
 myList = [12, 23, 78, 11, 9, 33]
